@@ -325,12 +325,15 @@
     var count = $(".fb-count", fb), prev = $("[data-fb-prev]", fb), next = $("[data-fb-next]", fb);
     function start() {
       if (!window.St || !St.PageFlip) return;
-      imgs.forEach(function (im) { im.loading = "eager"; }); // no blank pages mid-turn
-      var first = imgs[0];
-      var w = first.naturalWidth || +first.getAttribute("width"), h = first.naturalHeight || +first.getAttribute("height");
+      imgs.forEach(function (im) { if (im) im.loading = "eager"; }); // no blank pages mid-turn
+      // Page shape: from data-ratio (height / width) for drawn books, else the first image.
+      var first = imgs[0], ratio = parseFloat(fb.dataset.ratio);
+      var w = 1, h = ratio || 1;
+      if (!ratio && first) { w = first.naturalWidth || +first.getAttribute("width"); h = first.naturalHeight || +first.getAttribute("height"); }
+      var maxW = +fb.dataset.maxw || 900;
       var book = new St.PageFlip(bookEl, {
-        width: 600, height: Math.round(600 * h / w), size: "stretch",
-        minWidth: 260, maxWidth: 900, minHeight: Math.round(260 * h / w), maxHeight: Math.round(900 * h / w),
+        width: Math.min(600, maxW), height: Math.round(Math.min(600, maxW) * h / w), size: "stretch",
+        minWidth: 240, maxWidth: maxW, minHeight: Math.round(240 * h / w), maxHeight: Math.round(maxW * h / w),
         showCover: true, usePortrait: true, mobileScrollSupport: true,
         maxShadowOpacity: 0.45, flippingTime: reduce ? 1 : 900, drawShadow: true
       });
@@ -361,7 +364,8 @@
         if (e.key === "ArrowRight") { book.flipNext(); e.preventDefault(); }
         if (e.key === "ArrowLeft") { book.flipPrev(); e.preventDefault(); }
       });
-      $("[data-fb-zoom]", fb).addEventListener("click", function () { openLB(imgs, book.getCurrentPageIndex()); });
+      var zoomBtn = $("[data-fb-zoom]", fb);
+      if (zoomBtn) zoomBtn.addEventListener("click", function () { openLB(imgs, book.getCurrentPageIndex()); });
     }
     if (window.St) start();
     else addEventListener("load", start);
