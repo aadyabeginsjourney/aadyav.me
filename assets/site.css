@@ -394,11 +394,8 @@ a.tape:hover { transform: rotate(1deg) scale(1.06); }
 .grid--lead > .fig:first-child { grid-row: span 2; }
 .grid--lead.cols-2 > .fig:first-child { grid-row: span 3; }
 .grid--lead.cols-3 > .fig:first-child { grid-column: span 2; }
-.cols-3:not(.grid--lead) .fig img, .cols-4 .fig img { aspect-ratio: 4 / 5; object-fit: cover; }
-.cols-4 .fig img { aspect-ratio: 3 / 2; }
-.cols-5 .fig img { aspect-ratio: 3 / 4; object-fit: cover; }
-.grid--lead .fig:not(:first-child) img { aspect-ratio: 4 / 3; object-fit: cover; }
-.grid--lead .fig:first-child img { height: 100%; object-fit: cover; }
+/* Grid photos keep their own shape, so nothing is trimmed off (moodboards, wide shots). */
+.grid .fig img { width: 100%; height: auto; }
 
 .split { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(28px, 5vw, 80px); align-items: center; }
 .flip .split { grid-template-columns: 7fr 5fr; }
