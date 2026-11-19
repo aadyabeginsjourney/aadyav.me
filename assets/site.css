@@ -846,3 +846,23 @@ html.intro-on .rn-intro { display: grid; place-items: center; position: fixed; i
   .site-header nav { order: 3; width: 100%; margin-left: 0; justify-content: space-between; gap: 0; }
   .site-header nav a { padding: 6px 3px; font-size: .64rem; letter-spacing: .06em; }
 }
+
+/* ---- sketchbook stickers: cats and cheeky text */
+.sk-face { container-type: inline-size; }
+.sk-cat svg { overflow: visible; }
+.sk-tx { position: absolute; z-index: 2; rotate: var(--r, 0deg); display: block;
+  filter: drop-shadow(.45cqw 0 0 #fff) drop-shadow(-.45cqw 0 0 #fff) drop-shadow(0 .45cqw 0 #fff) drop-shadow(0 -.45cqw 0 #fff) drop-shadow(0 1cqw 1.2cqw rgba(0,0,0,.5)); }
+.sk-tx > span { display: grid; place-items: center; text-align: center; background: var(--bg); color: var(--fg);
+  font: 400 3.6cqw/.95 "Bagel Fat One", sans-serif; letter-spacing: .01em; }
+.sk-tx small { display: block; font: 700 2.6cqw/1 var(--hand); margin-top: .25em; }
+.sk-tx--circle > span { aspect-ratio: 1; border-radius: 50%; border: .55cqw solid #102F1F; font-size: 3.9cqw; }
+.sk-tx--burst > span { aspect-ratio: 1; clip-path: polygon(50.0% 0.0%, 59.8% 13.3%, 75.0% 6.7%, 76.9% 23.1%, 93.3% 25.0%, 86.7% 40.2%, 100.0% 50.0%, 86.7% 59.8%, 93.3% 75.0%, 76.9% 76.9%, 75.0% 93.3%, 59.8% 86.7%, 50.0% 100.0%, 40.2% 86.7%, 25.0% 93.3%, 23.1% 76.9%, 6.7% 75.0%, 13.3% 59.8%, 0.0% 50.0%, 13.3% 40.2%, 6.7% 25.0%, 23.1% 23.1%, 25.0% 6.7%, 40.2% 13.3%); font-size: 5.6cqw; }
+.sk-tx--bubble > span { position: relative; border-radius: 50% / 46%; border: .55cqw solid #102F1F; padding: 13% 6%; font-size: 3.7cqw; }
+.sk-tx--pill > span { border-radius: 999px; border: .55cqw solid #102F1F; padding: .55em .8em; font-size: 3.6cqw; }
+.sk-tx--tag > span { padding: .55em .6em .55em 1.3em; font: 700 2.5cqw/1.05 var(--text-font); letter-spacing: .04em; text-transform: uppercase;
+  clip-path: polygon(14% 0, 100% 0, 100% 100%, 14% 100%, 0 50%);
+  background: radial-gradient(circle at 12% 50%, #141414 0 .9cqw, transparent 1cqw), var(--bg); }
+.sk-tx--strip > span { padding: .5em .4em; font: 700 2.7cqw/1 var(--text-font); letter-spacing: .08em; text-transform: uppercase;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.28) 0 1cqw, transparent 1cqw 2cqw), var(--bg);
+  clip-path: polygon(2% 0, 98% 6%, 100% 50%, 98% 94%, 2% 100%, 0 50%); }
+.sk-tx--speech > span { position: relative; border-radius: 1.6cqw; border: .45cqw solid #102F1F; padding: .3em .2em .4em; font: 700 4.4cqw/1 var(--hand); }
