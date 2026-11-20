@@ -576,15 +576,26 @@
           .to(rnSub, { opacity: 0, y: -10, duration: .25 }, 1.95)
           .to(rn, { yPercent: -100, duration: .7, ease: "expo.inOut" }, 2.35);
       };
-      var rnStarted = false;
-      var rnStart = function () { if (!rnStarted) { rnStarted = true; rnGo(); } };
+      // Start once the fonts are in AND the page has finished loading (so the browser isn't busy
+      // and the first letters aren't stamped before anyone sees the screen), then a short beat.
+      // Caps keep it from waiting forever; a tab opened in the background waits until it's shown.
+      var rnStarted = false, fontsIn = false, pageIn = document.readyState === "complete";
+      var rnGoNow = function () {
+        if (rnStarted) return;
+        if (document.hidden) { document.addEventListener("visibilitychange", rnGoNow, { once: true }); return; }
+        rnStarted = true; setTimeout(rnGo, 350);
+      };
+      var rnStart = function () { if (fontsIn && pageIn) rnGoNow(); };
       try {
         Promise.all(rnT.map(function (el) {
           return document.fonts.load("40px " + el.style.getPropertyValue("--f"), el.textContent);
-        }).concat(document.fonts.load("40px Caveat"))).then(rnStart, rnStart);
-      } catch (e) { rnStart(); }
-      setTimeout(rnStart, 1200);
-      setTimeout(rnEnd, 7000); // never leave the page covered, even if something stalls
+        }).concat(document.fonts.load("40px Caveat"))).then(function () { fontsIn = true; rnStart(); }, function () { fontsIn = true; rnStart(); });
+      } catch (e) { fontsIn = true; }
+      addEventListener("load", function () { pageIn = true; rnStart(); });
+      setTimeout(function () { fontsIn = true; rnStart(); }, 1200);
+      setTimeout(function () { fontsIn = pageIn = true; rnStart(); }, 2500);
+      rnStart();
+      setTimeout(rnEnd, 9000); // never leave the page covered, even if something stalls
     }
   }
 
