@@ -377,7 +377,7 @@
     var count = $(".fb-count", fb), prev = $("[data-fb-prev]", fb), next = $("[data-fb-next]", fb);
     function start() {
       if (!window.St || !St.PageFlip) return;
-      imgs.forEach(function (im) { if (im) im.loading = "eager"; }); // no blank pages mid-turn
+      $$("img", fb).forEach(function (im) { im.loading = "eager"; }); // no blank pages mid-turn
       // Page shape: from data-ratio (height / width) for drawn books, else the first image.
       var first = imgs[0], ratio = parseFloat(fb.dataset.ratio);
       var w = 1, h = ratio || 1;
@@ -415,6 +415,15 @@
         if (!visible || box.open) return;
         if (e.key === "ArrowRight") { book.flipNext(); e.preventDefault(); }
         if (e.key === "ArrowLeft") { book.flipPrev(); e.preventDefault(); }
+      });
+      // Sketchbooks: "Look closer" opens every scan on the pages that are open right now.
+      var spreadBtn = $("[data-fb-zoom-spread]", fb);
+      if (spreadBtn) spreadBtn.addEventListener("click", function () {
+        var i = book.getCurrentPageIndex(), two = book.getOrientation() === "landscape" && i > 0;
+        var from = two && i % 2 === 0 ? i - 1 : i, to = two && i % 2 === 1 ? i + 1 : i;
+        var list = [];
+        leaves.slice(from, to + 1).forEach(function (l) { $$("img", l).forEach(function (im) { list.push(im); }); });
+        if (list.length) openLB(list, 0);
       });
       var zoomBtn = $("[data-fb-zoom]", fb);
       if (zoomBtn) zoomBtn.addEventListener("click", function () { openLB(imgs, book.getCurrentPageIndex()); });

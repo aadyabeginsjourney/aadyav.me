@@ -876,9 +876,9 @@ html.intro-on .rn-intro { display: grid; place-items: center; position: fixed; i
    grain on every section, gold running-stitch lines between them, a client file, a pinned-up
    mood board with Pantone chips, and the twelve fabric squares cut with pinking shears. */
 .tex-fabric .sec { position: relative; isolation: isolate; }
-.tex-fabric .sec::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .09; mix-blend-mode: overlay; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.tex-fabric .sec::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .14; mix-blend-mode: overlay; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 .tex-fabric .sec + .sec::after { content: ""; position: absolute; left: 4%; right: 4%; top: 0; height: 0; border-top: 2px dashed #DA9A2C; opacity: .7; }
-.tex-fabric .sec--wave + .sec::after, .tex-fabric .sec--fabrics::after, .tex-fabric .sec--fabrics + .sec::after { opacity: 0; }
+.tex-fabric .sec--marquee::after, .tex-fabric .sec--marquee + .sec::after, .tex-fabric .sec--fabrics::after, .tex-fabric .sec--fabrics + .sec::after { opacity: 0; }
 .tex-fabric .sec .h2 { position: relative; display: inline-block; }
 .tex-fabric .sec .h2::after { content: ""; position: absolute; left: 0; right: -.3em; bottom: -.12em; border-bottom: 3px dashed #DA9A2C; }
 .sec--wave .wrap { position: relative; z-index: 2; }
@@ -931,3 +931,46 @@ html.intro-on .rn-intro { display: grid; place-items: center; position: fixed; i
   .brief-polaroid { right: -6%; }
   .fabrics { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* Slytherin: straight banner of the twelve cards between sections. It keeps sliding, even under
+   the cursor, on a woven band with gold running stitches top and bottom. */
+.sec--marquee { padding: 0; }
+.marquee { position: relative; overflow: hidden; padding: clamp(26px, 3vw, 40px) 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, transparent 2px 5px),
+    radial-gradient(120% 140% at 50% 50%, #1E5128, #0E2418); }
+.marquee::before, .marquee::after { content: ""; position: absolute; left: 0; right: 0; height: 0; border-top: 3px dashed #DA9A2C; z-index: 2; }
+.marquee::before { top: 12px; } .marquee::after { bottom: 12px; }
+.marquee-track { display: flex; gap: clamp(14px, 1.6vw, 22px); width: max-content; animation: marquee-slide 55s linear infinite; }
+.marquee-track img { flex: none; height: clamp(150px, 17vw, 240px); width: auto; max-width: none; border-radius: 3px;
+  box-shadow: 0 10px 18px -8px rgba(0,0,0,.6); }
+.marquee-track img:nth-child(odd) { rotate: -1.2deg; } .marquee-track img:nth-child(even) { rotate: 1deg; }
+@keyframes marquee-slide { to { transform: translateX(calc(-50% - clamp(7px, .8vw, 11px))); } }
+@media (prefers-reduced-motion: reduce) { .marquee { overflow-x: auto; } .marquee-track { animation: none; } }
+/* woven texture on the deep sections of this page too */
+.tex-fabric .sec--grid, .tex-fabric .sec--brief { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.022) 0 2px, transparent 2px 6px), repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 2px, transparent 2px 6px); }
+
+/* ================= sketchbook pages: scattered scans ================= */
+.sk-scan { position: absolute; margin: 0; rotate: var(--r, 0deg); background: #fff; padding: 2.2%; box-shadow: 0 1.2cqw 2.4cqw rgba(16,47,31,.28); }
+.sk-scan img { display: block; width: 100%; height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+.sk-scan-tape { position: absolute; top: -4%; left: 50%; width: 38%; height: 7cqw; max-height: 18%; translate: -50% 0; rotate: var(--tr);
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.45) 0 5px, transparent 5px 10px), var(--tc); opacity: .88; }
+/* watercolour spreads: each half runs to the spine so the painting meets across the opening */
+.sk-half .sk-face { background: #FBF6EC; }
+.sk-halfimg { position: absolute; inset: 0; display: flex; }
+.sk-half--l .sk-halfimg { justify-content: flex-end; }
+.sk-halfimg img { height: 100%; width: auto; max-width: none; pointer-events: none; user-select: none; }
+.sk-half--l .sk-face::after, .sk-half--r .sk-face::after { content: ""; position: absolute; top: 0; bottom: 0; width: 8%; pointer-events: none; }
+.sk-half--l .sk-face::after { right: 0; background: linear-gradient(90deg, transparent, rgba(16,47,31,.18)); }
+.sk-half--r .sk-face::after { left: 0; background: linear-gradient(270deg, transparent, rgba(16,47,31,.18)); }
+/* textures & prints: a print as the whole page, another punched out as a round swatch */
+.sk-bleed { position: absolute; inset: 0; }
+.sk-bleed img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.sk-swatch img { aspect-ratio: 1; }
+.sk-endnote { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; font: 700 clamp(22px, 3vw, 36px)/1 var(--hand); color: #E3146C; rotate: -4deg; }
+.sk-book--two .sk-cover .sk-face { background: #575FF7 radial-gradient(120% 80% at 70% 10%, rgba(255,255,255,.14), transparent 60%); }
+.sk-book--two .sk-inner .sk-face { background: #2B2FA8; }
+.sk-label--prints b { font-size: clamp(22px, 3.8vw, 46px); color: #2B2FA8; }
+.sk-between { text-align: center; font-size: 1.6rem; letter-spacing: .6em; color: #E3146C; margin: clamp(60px, 8vw, 110px) 0 clamp(40px, 6vw, 80px); }
+.fb-zoom { border: 0; cursor: pointer; font: inherit; font-size: .8rem; margin-left: 6px; }
