@@ -508,6 +508,12 @@
     }
     btn.addEventListener("click", open);
     $$("[data-sk-close]", modal).forEach(function (el) { el.addEventListener("click", close); });
+    // Tapping anywhere that isn't a page or a control closes the book. The press has to start
+    // outside too, so a page-turn drag that ends off the book doesn't close it.
+    var downOutside = false;
+    function outside(t) { return !t.closest(".fb-page, .fb-controls button, .fb-count, .sk-modal-close"); }
+    modal.addEventListener("pointerdown", function (e) { downOutside = outside(e.target); });
+    modal.addEventListener("click", function (e) { if (downOutside && outside(e.target)) close(); downOutside = false; });
     addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden && !box.open) close(); });
   });
 
