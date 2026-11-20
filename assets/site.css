@@ -149,13 +149,13 @@ a.tape:hover { transform: rotate(1deg) scale(1.06); }
 .polaroid {
   position: relative; margin: 0; background: #fff; padding: 14px 14px 0;
   box-shadow: 0 30px 70px rgba(16,47,31,.28);
-  rotate: var(--r); transform: translate(var(--dx, 0px), var(--dy, 0px));
+  rotate: calc(var(--r) + var(--tilt, 0deg)); transform: translate(var(--dx, 0px), var(--dy, 0px));
   cursor: grab; touch-action: none; user-select: none;
   transition: rotate .5s var(--pop), scale .3s var(--pop);
   animation: drop .9s var(--pop) backwards .1s;
 }
 .polaroid:hover { rotate: -1deg; }
-.polaroid.is-dragging { cursor: grabbing; scale: 1.04; }
+.polaroid.is-dragging { cursor: grabbing; scale: 1.04; transition: scale .3s var(--pop); }
 .polaroid img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; pointer-events: none; }
 .polaroid figcaption { font: 700 .74rem/1 var(--text-font); letter-spacing: .14em; text-transform: uppercase; padding: 16px 4px 18px; text-align: center; }
 .polaroid-tape { position: absolute; top: -14px; left: 50%; translate: -50% 0; --tape: var(--cc-yellow); }
@@ -170,7 +170,7 @@ a.tape:hover { transform: rotate(1deg) scale(1.06); }
   min-width: 90px; z-index: 2;
   background: #fff; padding: 7px 7px 0; text-decoration: none;
   box-shadow: 0 10px 30px rgba(16,47,31,.22);
-  transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--r));
+  transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(calc(var(--r) + var(--tilt, 0deg)));
   cursor: grab; touch-action: none; user-select: none;
   transition: box-shadow .25s, scale .3s var(--pop);
   animation: drop .8s var(--pop) backwards;
@@ -197,7 +197,7 @@ a.tape:hover { transform: rotate(1deg) scale(1.06); }
 .note--kraft { grid-column: 1 / -1; width: 86%; justify-self: center; }
 .note {
   position: relative; color: var(--cc-ink); padding: 34px 24px 24px;
-  rotate: var(--r); box-shadow: 0 14px 34px rgba(0,0,0,.22);
+  rotate: calc(var(--r) + var(--tilt, 0deg)); box-shadow: 0 14px 34px rgba(0,0,0,.22);
   cursor: grab; touch-action: none; user-select: none;
   transform: translate(var(--dx, 0px), var(--dy, 0px));
   transition: box-shadow .25s, scale .3s var(--pop);
@@ -620,7 +620,7 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 260; pointer-even
 .scrawl svg { display: block; width: 70px; height: 40px; margin-top: 2px; }
 
 /* ---- doodle stickers (draggable) */
-.doodle { position: absolute; left: var(--x); top: var(--y); width: var(--s, 80px); z-index: 4; rotate: var(--r, 0deg);
+.doodle { position: absolute; left: var(--x); top: var(--y); width: var(--s, 80px); z-index: 4; rotate: calc(var(--r, 0deg) + var(--tilt, 0deg));
   translate: var(--dx, 0) var(--dy, 0); cursor: grab; touch-action: none; user-select: none;
   filter: drop-shadow(0 3px 0 rgba(16, 47, 31, .18)); transition: scale .25s var(--pop); }
 .doodle svg { display: block; width: 100%; height: auto; overflow: visible; }

@@ -153,12 +153,25 @@
   /* ---------------------------------------------------------- draggable pieces */
   // Anything with tape can be pushed around. A press without movement still counts
   // as a click, so stickers still open their project.
+  // With GSAP's Inertia plugin loaded, a flung piece keeps gliding and tilts with its speed,
+  // like real paper, then settles with a little wobble. It stays on the page.
   var z = 10;
   function draggable(el, onRelease) {
-    var sx, sy, ox = 0, oy = 0, moved = false, id = null;
+    var sx, sy, ox = 0, oy = 0, moved = false, id = null, trail = [], glide = null, tilt = { t: 0 };
+    function put(x, y) { ox = x; oy = y; el.style.setProperty("--dx", x + "px"); el.style.setProperty("--dy", y + "px"); }
+    function setTilt(v) { tilt.t = v; el.style.setProperty("--tilt", v.toFixed(2) + "deg"); }
+    function speed() { // px per second over the last ~100ms of movement
+      var now = performance.now(), recent = trail.filter(function (p) { return now - p.t < 100; });
+      if (recent.length < 2) return { x: 0, y: 0 };
+      var a = recent[0], b = recent[recent.length - 1], dt = Math.max(16, b.t - a.t) / 1000;
+      return { x: (b.x - a.x) / dt, y: (b.y - a.y) / dt };
+    }
+    var g = window.gsap, canGlide = !onRelease && !reduce && g && window.InertiaPlugin;
+    if (canGlide) g.registerPlugin(window.InertiaPlugin);
     el.addEventListener("pointerdown", function (e) {
       if (e.button !== 0) return;
-      id = e.pointerId; moved = false;
+      if (glide) { glide.kill(); glide = null; }
+      id = e.pointerId; moved = false; trail = [];
       sx = e.clientX - ox; sy = e.clientY - oy;
       el.setPointerCapture(id);
     });
@@ -167,9 +180,10 @@
       var dx = e.clientX - sx, dy = e.clientY - sy;
       if (!moved && Math.abs(dx - ox) + Math.abs(dy - oy) < 6) return;
       if (!moved) { moved = true; el.classList.add("is-dragging"); el.style.zIndex = ++z; }
-      ox = dx; oy = dy;
-      el.style.setProperty("--dx", dx + "px");
-      el.style.setProperty("--dy", dy + "px");
+      put(dx, dy);
+      trail.push({ x: dx, y: dy, t: performance.now() });
+      if (trail.length > 8) trail.shift();
+      if (canGlide) { var v = speed(); g.to(tilt, { t: Math.max(-16, Math.min(16, v.x * 0.012)), duration: .3, overwrite: true, onUpdate: function () { setTilt(tilt.t); } }); }
     });
     function end(e) {
       if (e.pointerId !== id) return;
@@ -177,6 +191,20 @@
       if (moved && !el.classList.contains("m-card")) Sound.plop(0.8 + Math.random() * 0.3);
       if (onRelease && moved) {
         if (onRelease(ox, oy) === "reset") { ox = 0; oy = 0; }
+      }
+      if (canGlide && moved) {
+        var v = speed(), r = el.getBoundingClientRect(), pad = 12;
+        var docH = document.documentElement.scrollHeight, top = r.top + scrollY;
+        var pos = { x: ox, y: oy };
+        glide = g.to(pos, {
+          inertia: {
+            x: { velocity: v.x, min: ox - r.left + pad, max: ox + (innerWidth - r.right) - pad },
+            y: { velocity: v.y, min: oy - top + pad, max: oy + (docH - top - r.height) - pad },
+            duration: { min: .3, max: 1.4 }, resistance: 260
+          },
+          onUpdate: function () { put(pos.x, pos.y); }
+        });
+        g.to(tilt, { t: 0, duration: 1.1, ease: "elastic.out(1, .35)", overwrite: true, onUpdate: function () { setTilt(tilt.t); } });
       }
     }
     el.addEventListener("pointerup", end);
@@ -204,7 +232,7 @@
     }
     tabs.forEach(function (t) {
       t.addEventListener("click", function () {
-        setFilter(t.dataset.filter);
+        setFilter(t.dataset.filter, true);
         history.replaceState(null, "", (t.dataset.filter === "all" ? location.pathname : "?f=" + t.dataset.filter) + "#work");
       });
     });
@@ -230,7 +258,28 @@
       list.classList.add("is-masonry");
     }
     var setFilter0 = setFilter;
-    setFilter = function (f) { setFilter0(f); layout(true); };
+    setFilter = function (f, animate) {
+      // Cards glide from their old spot to the new one (GSAP tweens the CSS "translate"
+      // property, so the cards' own tilt and rotation are left alone); newly shown cards
+      // rise and fade in.
+      var g = window.gsap;
+      if (!animate || !g || reduce) { setFilter0(f); layout(true); return; }
+      var before = new Map();
+      cards.forEach(function (c) {
+        g.killTweensOf(c); c.style.translate = ""; c.style.opacity = "";
+        if (!c.hidden) before.set(c, c.getBoundingClientRect());
+      });
+      setFilter0(f); layout(true);
+      var k = 0;
+      cards.forEach(function (c) {
+        if (c.hidden) return;
+        var a = before.get(c), b = c.getBoundingClientRect(), d = (k++) * .03;
+        if (a) g.fromTo(c, { translate: (a.left - b.left) + "px " + (a.top - b.top) + "px" },
+          { translate: "0px 0px", duration: .65, ease: "power3.inOut", delay: d, clearProps: "translate" });
+        else g.fromTo(c, { opacity: 0, translate: "0px 40px" },
+          { opacity: 1, translate: "0px 0px", duration: .55, ease: "back.out(1.6)", delay: .15 + d, clearProps: "opacity,translate" });
+      });
+    };
     addEventListener("resize", function () { layout(false); });
     var q = new URLSearchParams(location.search).get("f");
     setFilter(q && tabs.some(function (t) { return t.dataset.filter === q; }) ? q : "all");
