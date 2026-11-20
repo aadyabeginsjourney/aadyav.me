@@ -727,25 +727,16 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 260; pointer-even
 /* Plays by itself from the first frame (pure CSS, so there is no blank wait):
    A-A-D-Y-A stamps in, a shake, a yellow flash, then the letters blow away. */
 .rn-intro { display: none; }
-html.intro-on .rn-intro { display: grid; place-items: center; position: fixed; inset: 0; z-index: 300; pointer-events: none;
-  background: #575FF7 radial-gradient(rgba(255,255,255,.14) 1.2px, transparent 1.8px) 0 0 / 11px 11px;
-  animation: rn-flash .01s steps(1) 1.4s forwards, rn-done .4s ease 2.15s forwards; }
-@keyframes rn-flash { to { background-color: #FFE900; } }
-@keyframes rn-done { to { opacity: 0; visibility: hidden; } }
-.rn-letters { position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 1.4vw;
-  animation: rn-shake .32s steps(6) .86s; }
-@keyframes rn-shake { 0% { translate: 0 0; } 20% { translate: -1.4vw .8vh; } 40% { translate: 1.2vw -.6vh; } 60% { translate: -.7vw .4vh; } 80% { translate: .4vw -.2vh; } 100% { translate: 0 0; } }
+/* Opening ransom note. The panel shows from the first frame; GSAP (in site.js) stamps the
+   letters in, wipes the yellow over, scatters the letters and slides the panel away. */
+html.intro-on .rn-intro { display: grid; place-items: center; position: fixed; inset: 0; z-index: 300; pointer-events: none; overflow: hidden;
+  background: #575FF7 radial-gradient(rgba(255,255,255,.14) 1.2px, transparent 1.8px) 0 0 / 11px 11px; will-change: transform; }
+.rn-wipe { position: absolute; inset: 0; clip-path: circle(0% at 50% 50%);
+  background: #FFE900 radial-gradient(rgba(16,47,31,.1) 1.2px, transparent 1.8px) 0 0 / 11px 11px; }
+.rn-letters { position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 1.4vw; }
 .rn-t { font: 400 min(15vw, 24vh)/1 var(--f), sans-serif; padding: .06em .16em .1em; background: var(--bg); color: var(--fg);
-  box-shadow: 0 .5vw 0 rgba(16, 47, 31, .35); opacity: 0; transform: scale(2.8) rotate(var(--r));
-  animation: rn-in .2s cubic-bezier(.2, 1.6, .4, 1) calc(.12s + var(--i) * .17s) forwards,
-             rn-out .55s cubic-bezier(.6, 0, .4, 1) calc(1.7s + var(--i) * .04s) forwards; }
-@keyframes rn-in { to { opacity: 1; transform: rotate(var(--r)); } }
-@keyframes rn-out { from { opacity: 1; transform: rotate(var(--r)); } to { opacity: 0; transform: translate(var(--ox), var(--oy)) rotate(calc(var(--r) * 5)); } }
-.rn-sub { flex: 0 0 100%; text-align: center; font: 600 clamp(1.6rem, 3.4vw, 2.6rem)/1 var(--hand); color: #fff; margin-top: 1vh; opacity: 0;
-  animation: rn-sub-in .3s ease 1s forwards, rn-sub-ink .01s steps(1) 1.4s forwards, rn-sub-out .2s ease 1.65s forwards; }
-@keyframes rn-sub-in { to { opacity: 1; } }
-@keyframes rn-sub-ink { to { color: #102F1F; } }
-@keyframes rn-sub-out { from { opacity: 1; color: #102F1F; } to { opacity: 0; color: #102F1F; } }
+  box-shadow: 0 .5vw 0 rgba(16, 47, 31, .35); visibility: hidden; }
+.rn-sub { flex: 0 0 100%; text-align: center; font: 600 clamp(1.6rem, 3.4vw, 2.6rem)/1 var(--hand); color: #fff; margin-top: 1vh; visibility: hidden; }
 
 /* ================================================================ blush on the landing portrait */
 .pol-photo { position: relative; display: block; }

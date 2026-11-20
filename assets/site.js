@@ -422,14 +422,46 @@
   if (header) { addEventListener("scroll", onScroll, { passive: true }); onScroll(); }
 
   /* ---------------------------------------------------------- opening: ransom note */
-  // The animation is pure CSS and starts on the first frame. This just remembers that it
-  // played (so it shows once per visit) and takes it out of the page when it's done.
+  // "Stamp & wipe", run by GSAP: letters stamp down one by one, a yellow circle wipes over,
+  // the letters scatter and the panel slides up to show the page. It waits for the intro
+  // fonts (at most 1.2s) so no letter changes font mid-animation. Plays once per visit;
+  // without GSAP (blocked CDN) the panel simply goes away.
   var rn = $(".rn-intro");
   if (rn) {
-    if (doc.classList.contains("intro-on")) {
+    var rnEnd = function () { doc.classList.remove("intro-on"); rn.remove(); };
+    if (!doc.classList.contains("intro-on")) rnEnd();
+    else {
       try { sessionStorage.setItem("seenIntro", "1"); } catch (e) {}
-      setTimeout(function () { doc.classList.remove("intro-on"); if (rn.parentNode) rn.parentNode.removeChild(rn); }, 2700);
-    } else if (rn.parentNode) rn.parentNode.removeChild(rn);
+      var rnT = Array.prototype.slice.call(rn.querySelectorAll(".rn-t"));
+      var rnSub = rn.querySelector(".rn-sub"), rnWipe = rn.querySelector(".rn-wipe");
+      var num = function (el, v) { return parseFloat(el.style.getPropertyValue(v)) || 0; };
+      var rnGo = function () {
+        var g = window.gsap;
+        if (!g) { rnEnd(); return; }
+        var vw = innerWidth / 100, vh = innerHeight / 100;
+        var tl = g.timeline({ onComplete: rnEnd });
+        tl.set(rnT, { visibility: "visible", rotation: function (i, el) { return num(el, "--r"); } })
+          .from(rnT, { scale: 3.2, opacity: 0, rotation: function (i, el) { return num(el, "--r") * 4; }, duration: .42, ease: "back.out(2.2)", stagger: .13 })
+          .fromTo(rn.querySelector(".rn-letters"), { x: 0, y: 0 }, { keyframes: { x: [-10, 8, -5, 3, 0], y: [6, -4, 3, -1, 0] }, duration: .45, ease: "power1.out" }, .78)
+          .set(rnSub, { visibility: "visible" }, .95)
+          .fromTo(rnSub, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: .45, ease: "power2.out" }, .95)
+          .to(rnWipe, { clipPath: "circle(75% at 50% 50%)", duration: .55, ease: "power3.inOut" }, 1.25)
+          .to(rnSub, { color: "#102F1F", duration: .25 }, 1.4)
+          .to(rnT, { x: function (i, el) { return num(el, "--ox") * vw; }, y: function (i, el) { return num(el, "--oy") * vh; },
+                     rotation: function (i, el) { return num(el, "--r") * 6; }, duration: .7, ease: "power3.in", stagger: { each: .04, from: "center" } }, 1.95)
+          .to(rnSub, { opacity: 0, y: -10, duration: .25 }, 1.95)
+          .to(rn, { yPercent: -100, duration: .7, ease: "expo.inOut" }, 2.35);
+      };
+      var rnStarted = false;
+      var rnStart = function () { if (!rnStarted) { rnStarted = true; rnGo(); } };
+      try {
+        Promise.all(rnT.map(function (el) {
+          return document.fonts.load("40px " + el.style.getPropertyValue("--f"), el.textContent);
+        }).concat(document.fonts.load("40px Caveat"))).then(rnStart, rnStart);
+      } catch (e) { rnStart(); }
+      setTimeout(rnStart, 1200);
+      setTimeout(rnEnd, 7000); // never leave the page covered, even if something stalls
+    }
   }
 
   /* ---------------------------------------------------------- blush */
