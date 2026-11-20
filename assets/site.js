@@ -390,6 +390,7 @@
         maxShadowOpacity: 0.45, flippingTime: reduce ? 1 : 900, drawShadow: true
       });
       book.loadFromHTML(leaves);
+      fb._book = book;
       fb.classList.add("is-ready");
       var total = book.getPageCount();
       function update(i) {
@@ -428,8 +429,70 @@
       var zoomBtn = $("[data-fb-zoom]", fb);
       if (zoomBtn) zoomBtn.addEventListener("click", function () { openLB(imgs, book.getCurrentPageIndex()); });
     }
+    // Sketchbooks in a pop-up wait until they are opened (a hidden book has no size to measure).
+    if (fb.hasAttribute("data-defer")) {
+      fb._start = function () { if (!fb._book && window.St) { start(); } return fb._book; };
+      return;
+    }
     if (window.St) start();
     else addEventListener("load", start);
+  });
+
+  /* ---------------------------------------------------------- sketchbook shelf */
+  // Two closed books side by side. Clicking one lifts the cover off the shelf, carries it into a
+  // pop-up and the real flip book opens there to its first pages. Close drops it back.
+  $$("[data-sk-open]").forEach(function (btn) {
+    var modal = $('[data-sk-modal="' + btn.dataset.skOpen + '"]');
+    if (!modal) return;
+    var fb = $("[data-flipbook]", modal), bg = $(".sk-modal-bg", modal), shut = $(".sk-modal-close", modal);
+    var g = window.gsap, busy = false;
+    function size() {
+      var portrait = innerWidth < 760;
+      var w = portrait ? Math.min(innerWidth * 0.86, (innerHeight * 0.72) / 1.46)
+                       : Math.min(innerWidth * 0.44, (innerHeight * 0.76) / 1.46, 720);
+      fb.dataset.maxw = Math.floor(w);
+    }
+    function open() {
+      if (busy || !window.St) return;
+      busy = true;
+      modal.hidden = false; doc.classList.add("sk-locked");
+      if (!fb._book) { size(); fb._start(); }
+      var book = fb._book, cover = book ? $(".fb-page", fb) : null;
+      var from = btn.getBoundingClientRect(), to = cover && cover.getBoundingClientRect();
+      function done() {
+        fb.style.opacity = ""; busy = false;
+        setTimeout(function () { if (book && book.getCurrentPageIndex() === 0) book.flipNext(); }, reduce ? 0 : 150);
+        shut.focus({ preventScroll: true });
+      }
+      if (!g || reduce || !to || !to.width) { done(); return; }
+      // a copy of the cover flies from the shelf to where the book's cover sits in the pop-up
+      var fly = btn.cloneNode(true);
+      fly.classList.add("sk-fly"); fly.removeAttribute("data-sk-open");
+      fly.style.cssText = "left:" + from.left + "px;top:" + from.top + "px;width:" + from.width + "px;height:" + from.height + "px";
+      document.body.appendChild(fly);
+      btn.style.visibility = "hidden"; fb.style.opacity = "0";
+      g.timeline({ onComplete: function () { fly.parentNode.removeChild(fly); done(); } })
+        .fromTo(bg, { opacity: 0 }, { opacity: 1, duration: .5 }, 0)
+        .to(fly, { y: -26, rotation: -3, scale: 1.05, duration: .3, ease: "power2.out" }, 0)
+        .to(fly, { left: to.left, top: to.top, width: to.width, height: to.height, y: 0, rotation: 0, scale: 1, duration: .65, ease: "power3.inOut" }, .25)
+        .set(fb, { opacity: 1 });
+    }
+    function close() {
+      if (busy || modal.hidden) return;
+      var finish = function () {
+        modal.hidden = true; doc.classList.remove("sk-locked");
+        modal.style.opacity = ""; btn.style.visibility = "";
+        if (fb._book) fb._book.turnToPage(0);   // ready to lift and open again next time
+        btn.focus({ preventScroll: true });
+      };
+      if (!g || reduce) { finish(); return; }
+      busy = true;
+      g.to(modal, { opacity: 0, duration: .3, onComplete: function () { busy = false; finish();
+        g.fromTo(btn, { y: -26, rotation: -3 }, { y: 0, rotation: 0, duration: .45, ease: "back.out(2)", clearProps: "transform" }); } });
+    }
+    btn.addEventListener("click", open);
+    $$("[data-sk-close]", modal).forEach(function (el) { el.addEventListener("click", close); });
+    addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden && !box.open) close(); });
   });
 
   /* ---------------------------------------------------------- visitor counter */
