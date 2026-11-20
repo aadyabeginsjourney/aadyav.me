@@ -317,6 +317,22 @@
   var mod = $(".modelling");
   if (mod) {
     var mtabs = $$(".m-tab", mod), stacks = $$(".stack", mod);
+    // A photo that fails to download (flaky connection) tries again once instead of staying broken,
+    // and a shoot's photos all load as soon as it is picked, so flipping never lands on a blank.
+    $$(".m-card img", mod).forEach(function (im) {
+      im.addEventListener("error", function () {
+        if (im.dataset.retried) return;
+        im.dataset.retried = "1";
+        setTimeout(function () { im.src = im.src.split("?")[0] + "?r=" + Date.now(); }, 400);
+      });
+    });
+    mtabs.forEach(function (t) {
+      t.addEventListener("click", function () {
+        $$(".stack", mod).forEach(function (s) {
+          if (s.dataset.stack === t.dataset.shoot) $$("img", s).forEach(function (im) { im.loading = "eager"; });
+        });
+      });
+    });
     function activeStack() { return stacks.filter(function (s) { return !s.hidden; })[0]; }
     mtabs.forEach(function (t) {
       t.addEventListener("click", function () {
