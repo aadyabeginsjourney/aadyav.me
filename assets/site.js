@@ -183,7 +183,7 @@
       put(dx, dy);
       trail.push({ x: dx, y: dy, t: performance.now() });
       if (trail.length > 8) trail.shift();
-      if (canGlide) { var v = speed(); g.to(tilt, { t: Math.max(-7, Math.min(7, v.x * 0.005)), duration: .3, overwrite: true, onUpdate: function () { setTilt(tilt.t); } }); }
+      if (canGlide) { var v = speed(); g.to(tilt, { t: Math.max(-3, Math.min(3, v.x * 0.002)), duration: .3, overwrite: true, onUpdate: function () { setTilt(tilt.t); } }); }
     });
     function end(e) {
       if (e.pointerId !== id) return;
@@ -198,13 +198,13 @@
         var pos = { x: ox, y: oy };
         glide = g.to(pos, {
           inertia: {
-            x: { velocity: v.x * .45, min: ox - r.left + pad, max: ox + (innerWidth - r.right) - pad },
-            y: { velocity: v.y * .45, min: oy - top + pad, max: oy + (docH - top - r.height) - pad },
-            duration: { min: .2, max: .7 }, resistance: 900
+            x: { velocity: v.x * .15, min: ox - r.left + pad, max: ox + (innerWidth - r.right) - pad },
+            y: { velocity: v.y * .15, min: oy - top + pad, max: oy + (docH - top - r.height) - pad },
+            duration: { min: .15, max: .35 }, resistance: 1600
           },
           onUpdate: function () { put(pos.x, pos.y); }
         });
-        g.to(tilt, { t: 0, duration: .6, ease: "elastic.out(1, .6)", overwrite: true, onUpdate: function () { setTilt(tilt.t); } });
+        g.to(tilt, { t: 0, duration: .35, ease: "power2.out", overwrite: true, onUpdate: function () { setTilt(tilt.t); } });
       }
     }
     el.addEventListener("pointerup", end);
