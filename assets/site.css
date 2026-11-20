@@ -410,6 +410,20 @@ a.tape:hover { transform: rotate(1deg) scale(1.06); }
 .flip .fig--extra { right: auto; left: -2%; }
 
 .bleed { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+/* Calendar wave: one strip (two copies back to back) slides left forever, so the curve travels
+   across the screen like a snake; the whole body also sways a little. Hover pauses it. */
+.wave { overflow: hidden; padding: 3vw 0 1vw; }
+.wave-body { animation: wave-sway 7s ease-in-out infinite alternate; }
+.wave-track { display: flex; width: max-content; animation: wave-slide 75s linear infinite; }
+.wave img { flex: none; height: clamp(240px, 38vw, 540px); width: auto; max-width: none; }
+.wave:hover .wave-track, .wave:hover .wave-body { animation-play-state: paused; }
+@keyframes wave-slide { to { transform: translateX(-50%); } }
+@keyframes wave-sway { from { transform: translateY(-1.2%) rotate(-.4deg); } to { transform: translateY(1.2%) rotate(.4deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .wave { overflow-x: auto; }
+  .wave-track, .wave-body { animation: none; }
+  .wave img + img { display: none; }
+}
 .bleed img { width: 100%; cursor: zoom-in; transition: transform .5s var(--ease); }
 
 .quote p { font-size: 1rem; }

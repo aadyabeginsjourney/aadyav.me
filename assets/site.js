@@ -190,6 +190,9 @@
       id = null; el.classList.remove("is-dragging");
       if (moved && !el.classList.contains("m-card")) Sound.plop(0.8 + Math.random() * 0.3);
       if (onRelease && moved) {
+        // Pieces with their own release logic (modelling photos) give the lift back: a photo
+        // flipped to the bottom of the pile must not stay drawn on top of it and catch the taps.
+        el.style.zIndex = "";
         if (onRelease(ox, oy) === "reset") { ox = 0; oy = 0; }
       }
       if (canGlide && moved) {
@@ -671,7 +674,7 @@
   /* ---------------------------------------------------------- reveal on scroll */
   if (!("IntersectionObserver" in window) || reduce) return;
   doc.classList.add("js");
-  var items = $$(".sec .wrap > *, .bleed, .about-body, .work-head, .m-text, .m-stage, .film, .closer > *");
+  var items = $$(".sec .wrap > *, .bleed, .wave, .about-body, .work-head, .m-text, .m-stage, .film, .closer > *");
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       if (en.isIntersecting) {
